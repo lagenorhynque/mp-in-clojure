@@ -14,20 +14,27 @@
 
   p/Printable
   (-repr [_]
-    (str "#<Dist " (pr-str v) ">")))
+    (str "#<Dist " (pr-str v) ">"))
+
+  Object
+  (equals [this obj]
+    (= (.v this) (.v obj))))
 
 (alter-meta! #'->Dist assoc :private true)
 
 (util/make-printable Dist)
 
-(defn uniform [s]
+(defn dist [& kvs]
+  (->Dist (apply hash-map kvs)))
+
+(defn uniform* [s]
   (let [n (count s)]
     (->> s
          (map (fn [x] [x (/ 1 n)]))
          (into {}))))
 
-(defn dist [s]
-  (->Dist (uniform s)))
+(defn uniform [s]
+  (->Dist (uniform* s)))
 
 (defn dist? [v]
   (instance? Dist v))
@@ -56,25 +63,3 @@
       "#<Dist>")))
 
 (util/make-printable (type context))
-
-;;; example: Monty Hall problem
-
-(def doors #{:a :b :c})
-
-(def dist1
-  (m/mlet [prize (dist doors)
-           choice (dist doors)]
-    (m/return (if (= choice prize)
-                :win
-                :lose))))
-;; => #<Dist {:win 1/3, :lose 2/3}>
-
-(def dist2
-  (m/mlet [prize (dist doors)
-           choice (dist doors)
-           opened (dist (disj doors prize choice))
-           choice (dist (disj doors opened choice))]
-    (m/return (if (= choice prize)
-                :win
-                :lose))))
-;; => #<Dist {:lose 1/3, :win 2/3}>
