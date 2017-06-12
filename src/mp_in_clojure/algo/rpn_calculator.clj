@@ -25,7 +25,7 @@
     (catch NumberFormatException _
       nil)))
 
-(defn folding-with-maybe [[x y & ys :as xs] s]
+(defn- folding-function' [[x y & ys :as xs] s]
   (cond
     (and x y (= s "*")) (conj ys (* y x))
     (and x y (= s "+")) (conj ys (+ y x))
@@ -34,9 +34,9 @@
             ((m/m-lift 1 #(conj xs %))
              (read-maybe s)))))
 
-(defn solve-rpn' [folding-function s]
+(defn solve-rpn' [s]
   (m/domonad m/maybe-m
-    [result (reduce folding-function
+    [result (reduce folding-function'
                     ()
                     (str/split s #"\s+"))
      :when (= (count result) 1)]

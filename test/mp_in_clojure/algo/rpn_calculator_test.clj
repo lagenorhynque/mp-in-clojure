@@ -12,11 +12,7 @@
 
 (t/deftest solve-rpn'-test
   (t/testing "with maybe monad"
-    (t/is (= (solve-rpn' folding-with-maybe "1 2 * 4 +")
-             6.0))
-    (t/is (= (solve-rpn' folding-with-maybe "1 2 * 4 + 5 *")
-             30.0))
-    (t/is (= (solve-rpn' folding-with-maybe "1 2 * 4")
-             nil))
-    (t/is (= (solve-rpn' folding-with-maybe "1 8 wharglbllargh")
-             nil))))
+    (t/is (= (solve-rpn' "1 2 * 4 +") 6.0))
+    (t/is (= (solve-rpn' "1 2 * 4 + 5 *") 30.0))
+    (t/is (= (solve-rpn' "1 2 * 4") nil))
+    (t/is (= (solve-rpn' "1 8 wharglbllargh") nil))))

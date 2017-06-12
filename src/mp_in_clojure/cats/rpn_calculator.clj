@@ -1,7 +1,6 @@
 (ns mp-in-clojure.cats.rpn-calculator
   (:require [clojure.string :as str]
             [cats.core :as m]
-            [cats.monad.either :as either]
             [cats.monad.maybe :as maybe]))
 
 ;;; without monads
@@ -27,7 +26,7 @@
     (catch NumberFormatException _
       (maybe/nothing))))
 
-(defn folding-with-maybe [[x y & ys :as xs] s]
+(defn- folding-function' [[x y & ys :as xs] s]
   (cond
     (and x y (= s "*")) (maybe/just (conj ys (* y x)))
     (and x y (= s "+")) (maybe/just (conj ys (+ y x)))
@@ -35,25 +34,9 @@
     :else ((m/lift-m 1 #(conj xs %))
            (read-maybe s))))
 
-(defn solve-rpn' [folding-function s]
-  (m/mlet [result (m/foldm folding-function
+(defn solve-rpn' [s]
+  (m/mlet [result (m/foldm folding-function'
                            ()
                            (str/split s #"\s+"))
            :when (= (count result) 1)]
     (m/return (first result))))
-
-;;; with either monad
-
-(defn- read-either [s]
-  (try
-    (either/right (Double/parseDouble s))
-    (catch NumberFormatException _
-      (either/left "invalid input"))))
-
-(defn folding-with-either [[x y & ys :as xs] s]
-  (cond
-    (and x y (= s "*")) (either/right (conj ys (* y x)))
-    (and x y (= s "+")) (either/right (conj ys (+ y x)))
-    (and x y (= s "-")) (either/right (conj ys (- y x)))
-    :else ((m/lift-m 1 #(conj xs %))
-           (read-either s))))
