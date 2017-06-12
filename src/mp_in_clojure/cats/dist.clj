@@ -52,8 +52,9 @@
               (str "Context mismatch: " (p/-repr s)
                    " is not allowed to use with dist context."))
       (letfn [(add-prob [d [x p]]
-                (assoc d x (+ (get d x 0) p)))]
-        (->Dist (reduce add-prob {}
+                (update d x (fnil #(+ % p) 0)))]
+        (->Dist (reduce add-prob
+                        {}
                         (for [[x p] (p/-extract s)
                               [y q] (p/-extract (f x))]
                           [y (* p q)])))))
