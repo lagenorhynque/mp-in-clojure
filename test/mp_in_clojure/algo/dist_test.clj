@@ -17,8 +17,8 @@
                 [prize (uniform doors)
                  choice (uniform doors)
                  opened (uniform (disj doors prize choice))
-                 choice (uniform (disj doors opened choice))]
-                (if (= choice prize)
+                 choice' (uniform (disj doors opened choice))]
+                (if (= choice' prize)
                   :win
                   :lose))]
     (t/is (= dist1 (dist :win 1/3, :lose 2/3)))

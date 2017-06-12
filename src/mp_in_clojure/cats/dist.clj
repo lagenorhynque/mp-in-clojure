@@ -56,7 +56,7 @@
         (->Dist (reduce add-prob {}
                         (for [[x p] (p/-extract s)
                               [y q] (p/-extract (f x))]
-                          [y (* q p)])))))
+                          [y (* p q)])))))
 
     p/Printable
     (-repr [_]

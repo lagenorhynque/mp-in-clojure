@@ -18,4 +18,4 @@
                 (reduce add-prob {}
                         (for [[x p] mv
                               [y q] (f x)]
-                          [y (* q p)]))))])
+                          [y (* p q)]))))])
