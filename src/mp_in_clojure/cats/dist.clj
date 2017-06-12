@@ -24,18 +24,6 @@
 
 (util/make-printable Dist)
 
-(defn dist [& kvs]
-  (->Dist (apply hash-map kvs)))
-
-(defn uniform* [s]
-  (let [n (count s)]
-    (->> s
-         (map (fn [x] [x (/ 1 n)]))
-         (into {}))))
-
-(defn uniform [s]
-  (->Dist (uniform* s)))
-
 (defn dist? [v]
   (instance? Dist v))
 
@@ -45,22 +33,29 @@
 
     p/Monad
     (-mreturn [_ v]
-      (->Dist {v 1}))
+      (->Dist [[v 1]]))
 
-    (-mbind [_ s f]
-      (assert (dist? s)
-              (str "Context mismatch: " (p/-repr s)
+    (-mbind [_ m f]
+      (assert (dist? m)
+              (str "Context mismatch: " (p/-repr m)
                    " is not allowed to use with dist context."))
-      (letfn [(add-prob [d [x p]]
-                (update d x (fnil #(+ % p) 0)))]
-        (->Dist (reduce add-prob
-                        {}
-                        (for [[x p] (p/-extract s)
-                              [y q] (p/-extract (f x))]
-                          [y (* p q)])))))
+      (->Dist (for [[x p] (p/-extract m)
+                    [y q] (p/-extract (f x))]
+                [y (* p q)])))
 
     p/Printable
     (-repr [_]
       "#<Dist>")))
 
 (util/make-printable (type context))
+
+(defn uniform [s]
+  (let [n (count s)]
+    (->> s
+         (map (fn [x] [x (/ 1 n)]))
+         ->Dist)))
+
+(defn dist->probs [dist]
+  (letfn [(add-prob [d [x p]]
+            (update d x (fnil #(+ % p) 0)))]
+    (reduce add-prob {} (p/-extract dist))))
