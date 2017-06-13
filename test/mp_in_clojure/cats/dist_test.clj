@@ -6,6 +6,17 @@
             [cats.core :as m]
             [cats.labs.test :as lt]))
 
+;;; throwing dice
+
+(t/deftest throwing-dice
+  (let [die (range 1 (inc 6))
+        probs (dist->probs
+               (m/mlet [d1 (uniform die)
+                        d2 (uniform die)]
+                 (m/return (+ d1 d2))))]
+    (t/is (= probs {2 1/36, 3 2/36, 4 3/36, 5 4/36, 6 5/36, 7 6/36,
+                    8 5/36, 9 4/36, 10 3/36, 11 2/36, 12 1/36}))))
+
 ;;; Monty Hall problem
 
 (t/deftest monty-hall-problem
