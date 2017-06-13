@@ -1,7 +1,7 @@
 (ns mp-in-clojure.algo.dist
   (:require [clojure.algo.monads :as m]))
 
-(m/defmonad dist-m
+(m/defmonad prob-m
   [m-result (fn [v] [[v 1]])
    m-bind   (fn [m f]
               (for [[x p] m
@@ -13,7 +13,7 @@
     (->> s
          (map (fn [x] [x (/ 1 n)])))))
 
-(defn dist->probs [dist]
+(defn prob->dist [prob]
   (letfn [(add-prob [d [x p]]
             (update d x (fnil #(+ % p) 0)))]
-    (reduce add-prob {} dist)))
+    (reduce add-prob {} prob)))

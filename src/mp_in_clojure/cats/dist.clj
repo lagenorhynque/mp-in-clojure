@@ -5,7 +5,7 @@
 
 (declare context)
 
-(deftype Dist [v]
+(deftype Prob [v]
   p/Contextual
   (-get-context [_] context)
 
@@ -14,18 +14,18 @@
 
   p/Printable
   (-repr [_]
-    (str "#<Dist " (pr-str v) ">"))
+    (str "#<Prob " (pr-str v) ">"))
 
   Object
   (equals [this obj]
     (= (.v this) (.v obj))))
 
-(alter-meta! #'->Dist assoc :private true)
+(alter-meta! #'->Prob assoc :private true)
 
-(util/make-printable Dist)
+(util/make-printable Prob)
 
-(defn dist? [v]
-  (instance? Dist v))
+(defn prob? [v]
+  (instance? Prob v))
 
 (def context
   (reify
@@ -33,19 +33,19 @@
 
     p/Monad
     (-mreturn [_ v]
-      (->Dist [[v 1]]))
+      (->Prob [[v 1]]))
 
     (-mbind [_ m f]
-      (assert (dist? m)
+      (assert (prob? m)
               (str "Context mismatch: " (p/-repr m)
-                   " is not allowed to use with dist context."))
-      (->Dist (for [[x p] (p/-extract m)
+                   " is not allowed to use with prob context."))
+      (->Prob (for [[x p] (p/-extract m)
                     [y q] (p/-extract (f x))]
                 [y (* p q)])))
 
     p/Printable
     (-repr [_]
-      "#<Dist>")))
+      "#<Prob>")))
 
 (util/make-printable (type context))
 
@@ -53,9 +53,9 @@
   (let [n (count s)]
     (->> s
          (map (fn [x] [x (/ 1 n)]))
-         ->Dist)))
+         ->Prob)))
 
-(defn dist->probs [dist]
+(defn prob->dist [prob]
   (letfn [(add-prob [d [x p]]
             (update d x (fnil #(+ % p) 0)))]
-    (reduce add-prob {} (p/-extract dist))))
+    (reduce add-prob {} (p/-extract prob))))
