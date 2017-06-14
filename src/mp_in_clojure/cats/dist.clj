@@ -31,15 +31,28 @@
   (reify
     p/Context
 
-    p/Monad
-    (-mreturn [_ v]
-      (->Prob [[v 1]]))
+    p/Functor
+    (-fmap [_ f fv]
+      (->Prob (for [[x p] (p/-extract fv)]
+                [(f x) p])))
 
-    (-mbind [_ m f]
-      (assert (prob? m)
-              (str "Context mismatch: " (p/-repr m)
+    p/Applicative
+    (-pure [_ v]
+      (->Prob [[v 1]]))
+    (-fapply [_ af av]
+      (->Prob (for [[g p] (p/-extract af)
+                    [x q] (p/-extract av)]
+                [(g x) (* p q)])))
+
+    p/Monad
+    (-mreturn [m v]
+      (p/-pure m v))
+
+    (-mbind [_ mv f]
+      (assert (prob? mv)
+              (str "Context mismatch: " (p/-repr mv)
                    " is not allowed to use with prob context."))
-      (->Prob (for [[x p] (p/-extract m)
+      (->Prob (for [[x p] (p/-extract mv)
                     [y q] (p/-extract (f x))]
                 [y (* p q)])))
 
