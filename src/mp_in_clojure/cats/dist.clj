@@ -47,7 +47,6 @@
     p/Monad
     (-mreturn [m v]
       (p/-pure m v))
-
     (-mbind [_ mv f]
       (assert (prob? mv)
               (str "Context mismatch: " (p/-repr mv)
